@@ -1,0 +1,27 @@
+# Build artifacts
+target/
+*.class
+*.jar
+*.war
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.project
+.classpath
+.settings/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Maven
+*.log
+dependency-reduced-pom.xml
+
+# Secrets / local config
+*.env
+*.pem
+*.jks
+*.p12

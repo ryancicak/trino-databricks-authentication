@@ -1,0 +1,24 @@
+# Trino Coordinator config.properties — Authentication Section
+# =============================================================
+# Add these properties to your existing config.properties.
+# See: https://trino.io/docs/current/security/password-file.html
+#
+# IMPORTANT: The shared-secret must be IDENTICAL on all nodes
+# (coordinator + all workers). Generate it once with:
+#   openssl rand -base64 32
+
+# --- Authentication ---
+http-server.authentication.type=PASSWORD
+http-server.authentication.allow-insecure-over-http=true
+
+# --- Internal Communication ---
+# CRITICAL: Must be the same value on ALL nodes in the cluster.
+# Without this, worker nodes cannot communicate with the coordinator
+# and queries will hang indefinitely.
+internal-communication.shared-secret=GENERATE_WITH_openssl_rand_-base64_32
+
+# --- HTTPS (required for password auth from external clients) ---
+http-server.https.enabled=true
+http-server.https.port=9443
+http-server.https.keystore.path=/etc/trino/ssl/trino-keystore.jks
+http-server.https.keystore.key=YOUR_KEYSTORE_PASSWORD

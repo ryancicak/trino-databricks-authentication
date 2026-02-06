@@ -1,0 +1,17 @@
+# Example Trino Catalog: Iceberg tables via AWS Glue
+# ====================================================
+# Place in /etc/trino/conf/catalog/iceberg_glue.properties
+#
+# This allows Trino to query Iceberg tables whose metadata
+# is stored in AWS Glue Data Catalog.
+
+connector.name=iceberg
+iceberg.catalog.type=glue
+hive.metastore.glue.region=us-west-2
+
+# Optional: restrict to specific Glue databases
+# iceberg.glue.database-names=my_db_1,my_db_2
+
+# S3 settings
+# hive.s3.region=us-west-2
+# hive.s3.endpoint=https://s3.us-west-2.amazonaws.com

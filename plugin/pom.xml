@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.databricks.trino</groupId>
+    <artifactId>trino-databricks-auth</artifactId>
+    <version>1.0.0</version>
+    <packaging>jar</packaging>
+
+    <name>Trino Databricks Token Authenticator</name>
+    <description>
+        A Trino password authenticator plugin that validates Databricks API tokens
+        via the SCIM API. Zero external dependencies — uses only JDK + Trino SPI.
+    </description>
+    <url>https://github.com/databricks/trino-databricks-auth</url>
+
+    <licenses>
+        <license>
+            <name>Apache License 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0</url>
+        </license>
+    </licenses>
+
+    <properties>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <!--
+            Trino SPI version to compile against.
+
+            This plugin uses the stable PasswordAuthenticator SPI, which has not
+            changed across Trino versions. The compiled JAR (Java 21 bytecode) is
+            forward-compatible and runs on newer Trino versions (e.g., 476+) because
+            Java bytecode is forward-compatible.
+
+            If you're building for a specific Trino version, set this accordingly.
+            For EMR, the deploy script auto-detects and installs the exact SPI JAR.
+        -->
+        <trino.version>438</trino.version>
+    </properties>
+
+    <dependencies>
+        <!-- Trino SPI — provided at runtime by the Trino server -->
+        <dependency>
+            <groupId>io.trino</groupId>
+            <artifactId>trino-spi</artifactId>
+            <version>${trino.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!--
+            Zero external dependencies by design.
+
+            Trino's plugin classloader isolates each plugin, so bundled libraries
+            like Guava or Jackson can conflict with Trino's internal versions.
+            We avoid this entirely by using only JDK standard library classes:
+
+              - Cache:       java.util.concurrent.ConcurrentHashMap
+              - JSON parse:  java.util.regex.Pattern (extract one field)
+              - HTTP client: java.net.http.HttpClient (JDK 11+)
+        -->
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.4.2</version>
+            </plugin>
+        </plugins>
+    </build>
+</project>
