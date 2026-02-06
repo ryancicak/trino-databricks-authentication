@@ -2,13 +2,13 @@
 
 Trino password authenticator plugin that validates Databricks API tokens. When a user connects to Trino from a Databricks notebook, they pass their Databricks API token as the Trino password. The plugin calls the Databricks SCIM API to verify the token and extract the owner's email, which becomes the Trino principal.
 
-The identity can't be spoofed — Trino validates the token server-side, and rejects the connection if the claimed username doesn't match the token owner.
+The identity can't be spoofed. Trino validates the token server-side, and rejects the connection if the claimed username doesn't match the token owner.
 
 No external dependencies. Just the JDK standard library and the Trino SPI.
 
 ## Background
 
-Databricks Lakehouse Federation lets you query external engines like Trino. But Trino only sees a `user` string that the client sets — there's nothing stopping someone from claiming to be `admin@company.com`. This plugin fixes that by using the Databricks API token (which is cryptographically tied to a specific user) as proof of identity.
+Databricks Lakehouse Federation lets you query external engines like Trino. But Trino only sees a `user` string that the client sets, so there's nothing stopping someone from claiming to be `admin@company.com`. This plugin fixes that by using the Databricks API token (which is cryptographically tied to a specific user) as proof of identity.
 
 The flow:
 1. Notebook gets the user's email via `current_user()` and their API token
@@ -28,7 +28,7 @@ mvn clean package
 
 Output: `plugin/target/trino-databricks-auth-1.0.0.jar` (about 9 KB)
 
-For EMR, there's a script that handles everything including auto-detecting the Trino SPI version — see `deploy/emr/build_and_deploy.sh`.
+For EMR, there's a script that handles everything including auto-detecting the Trino SPI version. See `deploy/emr/build_and_deploy.sh`.
 
 ## Deploying
 
@@ -70,7 +70,7 @@ Then restart Trino.
 
 ### Multi-node clusters
 
-The `internal-communication.shared-secret` has to be identical on the coordinator and every worker. If it's not, the coordinator can't dispatch work to workers and queries hang forever with no error message. This one burned a lot of time to figure out — see `docs/troubleshooting.md` if you run into it.
+The `internal-communication.shared-secret` has to be identical on the coordinator and every worker. If it's not, the coordinator can't dispatch work to workers and queries hang forever with no error message. This one burned a lot of time to figure out. See `docs/troubleshooting.md` if you run into it.
 
 ## Usage (Databricks notebook)
 
@@ -105,9 +105,9 @@ for row in cursor.fetchall():
 
 `password-authenticator.properties`:
 
-- `databricks.host` (required) — your workspace URL, e.g. `https://myworkspace.cloud.databricks.com`
-- `databricks.cache-ttl-sec` (default 300) — how long to cache a validated token before re-checking
-- `databricks.cache-max` (default 1000) — max cached tokens
+- `databricks.host` (required): your workspace URL, e.g. `https://myworkspace.cloud.databricks.com`
+- `databricks.cache-ttl-sec` (default 300): how long to cache a validated token before re-checking
+- `databricks.cache-max` (default 1000): max cached tokens
 
 ## Repo layout
 
@@ -122,7 +122,7 @@ docs/                Architecture, EMR setup guide, troubleshooting
 
 ## Why zero dependencies?
 
-Trino loads each plugin in its own classloader. If you bundle Guava or Jackson in your plugin JAR, they can conflict with the versions Trino uses internally — you get `ClassNotFoundException` at runtime even though everything compiled fine. We hit this and it was painful to debug.
+Trino loads each plugin in its own classloader. If you bundle Guava or Jackson in your plugin JAR, they can conflict with the versions Trino uses internally. You get `ClassNotFoundException` at runtime even though everything compiled fine. We hit this and it was painful to debug.
 
 Instead of shading or fighting classloader issues, the plugin just uses `ConcurrentHashMap` for caching, `java.util.regex` for JSON parsing (we only need one field), and `java.net.http.HttpClient` for the SCIM call. No conflicts possible.
 
